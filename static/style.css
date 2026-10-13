@@ -28,6 +28,7 @@ h1 em { color: #5a8765; font-style: normal; }
 .card-heading h2 { margin: 7px 0 0; font-size: 21px; letter-spacing: -.04em; }
 .card-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #edf4ec; color: #386d4e; font-size: 20px; }
 .form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.name-field { grid-column: 1 / -1; }
 .field label { display: flex; align-items: baseline; gap: 7px; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
 .field label span { color: #a6b4a9; font-size: 10px; font-weight: 600; letter-spacing: .08em; }
 .input-wrap { position: relative; }
@@ -57,6 +58,7 @@ button span { font-size: 20px; font-weight: 400; }
 .result-panel.low { background: #e9eef1; }
 .result-panel.high { background: #f5eddf; }
 .panel-kicker { position: relative; z-index: 1; color: #5f816d; }
+.result-name { display: block; position: relative; z-index: 1; margin-top: 12px; color: #5c735e; font-size: 16px; font-weight: 700; }
 .result-main { position: relative; z-index: 1; display: flex; align-items: baseline; gap: 12px; margin-top: 35px; }
 .result-number { font-size: clamp(70px, 8vw, 110px); font-weight: 700; line-height: 1.1; letter-spacing: -.085em; }
 .result-panel.low .result-number, .result-panel.high .result-number { color: #c24f4f; }

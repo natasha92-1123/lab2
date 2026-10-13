@@ -35,6 +35,10 @@
 
               <form method="post" action="{{ url_for('index') }}" novalidate>
                 <div class="form-fields">
+                  <div class="field name-field">
+                    <label for="user_name">姓名 <span>NAME</span></label>
+                    <input id="user_name" name="user_name" type="text" maxlength="50" placeholder="例如 王小明" value="{{ user_name }}">
+                  </div>
                   <div class="field">
                     <label for="height">身高 <span>HEIGHT</span></label>
                     <div class="input-wrap">
@@ -61,6 +65,7 @@
             {% if result %}
               <section class="result-panel {{ result.tone }}" aria-labelledby="result-title" aria-live="polite">
                 <span class="panel-kicker">YOUR RESULT / 計算結果</span>
+                <span class="result-name">{{ user_name or "你的" }} BMI 結果</span>
                 <div class="result-main">
                   <span class="result-number">{{ result.bmi }}</span>
                   <span class="result-unit">BMI</span>

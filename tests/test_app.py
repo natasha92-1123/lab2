@@ -21,6 +21,11 @@ class BmiAppTests(unittest.TestCase):
         self.assertIn("健康體位", page)
         self.assertIn("維持均衡飲食", page)
 
+    def test_user_name_is_displayed_in_result(self):
+        response = self.client.post("/", data={"user_name": "王小明", "height": "170", "weight": "65"})
+        page = response.get_data(as_text=True)
+        self.assertIn("王小明 BMI 結果", page)
+
     def test_taiwan_adult_thresholds(self):
         for bmi, category in [
             (18.4, "體重過輕"),
