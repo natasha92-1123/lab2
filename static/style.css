@@ -59,6 +59,7 @@ button span { font-size: 20px; font-weight: 400; }
 .panel-kicker { position: relative; z-index: 1; color: #5f816d; }
 .result-main { position: relative; z-index: 1; display: flex; align-items: baseline; gap: 12px; margin-top: 35px; }
 .result-number { font-size: clamp(70px, 8vw, 110px); font-weight: 700; line-height: 1.1; letter-spacing: -.085em; }
+.result-panel.low .result-number, .result-panel.high .result-number { color: #c24f4f; }
 .result-unit { color: #728a77; font-size: 13px; font-weight: 700; letter-spacing: .1em; }
 .result-divider { position: relative; z-index: 1; height: 1px; margin: 22px 0 25px; background: #b6cfb5; }
 .result-label { position: relative; z-index: 1; color: #5c735e; font-size: 14px; }
