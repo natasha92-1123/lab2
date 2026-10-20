@@ -54,11 +54,21 @@ button span { font-size: 20px; font-weight: 400; }
 .illustration-center span { display: block; margin-top: 2px; font-size: 28px; font-weight: 400; }
 .side-caption { align-self: flex-end; display: flex; align-items: center; gap: 13px; margin: 24px 2% 0 0; }
 .caption-line { width: 30px; height: 1px; background: #88a98f; }
-.result-panel { position: relative; width: min(100%, 460px); min-height: 450px; padding: 42px; border-radius: 20px; background: #e6f1e4; overflow: hidden; }
+.result-panel { position: relative; width: min(100%, 460px); min-height: 540px; padding: 42px; border-radius: 20px; background: #e6f1e4; overflow: hidden; }
 .result-panel.low { background: #e9eef1; }
 .result-panel.high { background: #f5eddf; }
 .panel-kicker { position: relative; z-index: 1; color: #5f816d; }
 .result-name { display: block; position: relative; z-index: 1; margin-top: 12px; color: #5c735e; font-size: 16px; font-weight: 700; }
+.bmi-gauge { position: relative; z-index: 1; width: min(100%, 365px); height: 175px; margin: 24px auto 0; }
+.gauge-arc { display: block; width: 100%; height: 100%; overflow: visible; }
+.gauge-arc path { fill: none; stroke-width: 19; stroke-linecap: butt; }
+.gauge-label { position: absolute; top: 5px; color: #6e7f72; font-size: 12px; font-weight: 700; }
+.gauge-label-low { left: 21%; }
+.gauge-label-healthy { left: 49%; transform: translateX(-50%); }
+.gauge-label-high { left: 65%; }
+.gauge-pointer { position: absolute; bottom: 20px; left: 50%; width: 5px; height: 112px; border-radius: 5px 5px 1px 1px; background: #26352e; transform: translateX(-50%) rotate(var(--gauge-angle)); transform-origin: 50% 100%; box-shadow: 1px 1px 2px #25362e33; }
+.gauge-pointer-tip { position: absolute; top: -1px; left: 0; width: 0; height: 0; border-right: 2.5px solid transparent; border-bottom: 9px solid #26352e; border-left: 2.5px solid transparent; }
+.gauge-pointer-center { position: absolute; bottom: -11px; left: 50%; width: 27px; height: 27px; border: 5px solid #f8faf5; border-radius: 50%; background: #26352e; transform: translateX(-50%); box-shadow: 0 1px 3px #25362e44; }
 .result-main { position: relative; z-index: 1; display: flex; align-items: baseline; gap: 12px; margin-top: 35px; }
 .result-number { font-size: clamp(70px, 8vw, 110px); font-weight: 700; line-height: 1.1; letter-spacing: -.085em; }
 .result-panel.low .result-number, .result-panel.high .result-number { color: #c24f4f; }
@@ -101,5 +111,7 @@ footer span { letter-spacing: .14em; }
   .calculator { padding: 23px 18px; }
   .form-fields { grid-template-columns: 1fr; gap: 17px; }
   .result-panel { padding: 32px 26px; }
+  .bmi-gauge { height: 155px; margin-top: 20px; }
+  .gauge-pointer { height: 98px; }
   .ranges { padding: 22px 18px; }
 }
