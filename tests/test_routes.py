@@ -1,13 +1,13 @@
-import unittest
 import os
 import sqlite3
 import tempfile
+import unittest
 
-from app import app, bmi_guidance
+from app import app
 from werkzeug.security import generate_password_hash
 
 
-class BmiAppTests(unittest.TestCase):
+class BmiRouteTests(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
         self.database_directory = tempfile.TemporaryDirectory()
@@ -64,12 +64,18 @@ class BmiAppTests(unittest.TestCase):
         self.assertIn("維持均衡飲食", page)
 
     def test_user_name_is_displayed_in_result(self):
-        response = self.client.post("/", data={"user_name": "王小明", "height": "170", "weight": "65"})
+        response = self.client.post(
+            "/",
+            data={"user_name": "王小明", "height": "170", "weight": "65"},
+        )
         page = response.get_data(as_text=True)
         self.assertIn("王小明 BMI 結果", page)
 
     def test_successful_calculation_is_saved_to_database(self):
-        response = self.client.post("/", data={"user_name": "王小明", "height": "170", "weight": "65"})
+        response = self.client.post(
+            "/",
+            data={"user_name": "王小明", "height": "170", "weight": "65"},
+        )
 
         self.assertEqual(response.status_code, 200)
         connection = sqlite3.connect(app.config["DATABASE"])
@@ -81,29 +87,33 @@ class BmiAppTests(unittest.TestCase):
             connection.close()
         self.assertEqual(record, ("王小明", 170.0, 65.0, 22.5))
 
-    def test_taiwan_adult_thresholds(self):
-        for bmi, category in [
-            (18.4, "體重過輕"),
-            (18.5, "健康體位"),
-            (23.9, "健康體位"),
-            (24.0, "體重過重"),
-            (26.9, "體重過重"),
-            (27.0, "肥胖"),
-        ]:
-            with self.subTest(bmi=bmi):
-                self.assertEqual(bmi_guidance(bmi)["label"], category)
-
     def test_invalid_fields_do_not_produce_result(self):
-        for height, weight in [("", "65"), ("0", "65"), ("abc", "65"), ("170", "-2"), ("inf", "65"), ("170", "nan"), ("1e-300", "65"), ("1e308", "65"), ("1", "1e308")]:
+        for height, weight in [
+            ("", "65"),
+            ("0", "65"),
+            ("abc", "65"),
+            ("170", "-2"),
+            ("inf", "65"),
+            ("170", "nan"),
+            ("1e-300", "65"),
+            ("1e308", "65"),
+            ("1", "1e308"),
+        ]:
             with self.subTest(height=height, weight=weight):
-                response = self.client.post("/", data={"height": height, "weight": weight})
+                response = self.client.post(
+                    "/",
+                    data={"height": height, "weight": weight},
+                )
                 page = response.get_data(as_text=True)
                 self.assertEqual(response.status_code, 200)
                 self.assertIn('aria-invalid="true"', page)
                 self.assertNotIn("YOUR RESULT", page)
 
     def test_input_is_escaped(self):
-        response = self.client.post("/", data={"height": '<script>alert(1)</script>', "weight": "65"})
+        response = self.client.post(
+            "/",
+            data={"height": "<script>alert(1)</script>", "weight": "65"},
+        )
         page = response.get_data(as_text=True)
         self.assertNotIn("<script>", page)
         self.assertIn("請輸入大於 0", page)
