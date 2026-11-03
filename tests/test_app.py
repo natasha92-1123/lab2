@@ -72,10 +72,13 @@ class BmiAppTests(unittest.TestCase):
         response = self.client.post("/", data={"user_name": "王小明", "height": "170", "weight": "65"})
 
         self.assertEqual(response.status_code, 200)
-        with sqlite3.connect(app.config["DATABASE"]) as connection:
+        connection = sqlite3.connect(app.config["DATABASE"])
+        try:
             record = connection.execute(
                 "SELECT user_name, height, weight, bmi FROM bmi_records"
             ).fetchone()
+        finally:
+            connection.close()
         self.assertEqual(record, ("王小明", 170.0, 65.0, 22.5))
 
     def test_taiwan_adult_thresholds(self):

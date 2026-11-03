@@ -22,7 +22,8 @@ def is_authenticated():
 def save_bmi_record(user_name, height, weight, bmi):
     database_path = app.config["DATABASE"]
     os.makedirs(os.path.dirname(database_path), exist_ok=True)
-    with sqlite3.connect(database_path) as connection:
+    connection = sqlite3.connect(database_path)
+    try:
         connection.execute(
             """
             CREATE TABLE IF NOT EXISTS bmi_records (
@@ -48,6 +49,9 @@ def save_bmi_record(user_name, height, weight, bmi):
                 datetime.now(timezone.utc).isoformat(),
             ),
         )
+        connection.commit()
+    finally:
+        connection.close()
 
 
 def bmi_guidance(bmi):
