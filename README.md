@@ -23,6 +23,12 @@ BMI = 體重（公斤）÷ 身高（公尺）²。分類採臺灣成人體位參
 
 執行測試：`python -m unittest discover -s tests`
 
+每次成功計算 BMI 後，結果會儲存至 SQLite 資料庫。預設檔案位置為 `instance/bmi.sqlite3`，資料表為 `bmi_records`，包含姓名、身高、體重、BMI 與儲存時間。
+
+登入功能使用環境變數設定帳號與密碼：`LOGIN_USERNAME`（預設 `admin`）、
+`LOGIN_PASSWORD`（預設為開發用密碼，正式環境請務必設定），以及 Flask session
+使用的 `SECRET_KEY`。登入頁面位於 `/login`，成功登入後可從首頁登出。
+
 ## 部署到 Azure Web App
 
 `.github/workflows/deploy-azure.yml` 在 `main` 分支的應用程式、測試或 workflow 異動時執行，也可以從 GitHub Actions 手動觸發。流程會在 Windows runner 上執行測試、下載官方 Python 3.14.8 可嵌入版本，將 Python 與相依套件一起部署到 `NTUSTweb00`（資源群組 `NTUSTlab2026`）。站點透過 `web.config` 的 IIS HttpPlatformHandler 啟動 `serve.py`，以 Waitress 提供 Flask 服務。
