@@ -23,9 +23,17 @@ BMI = 體重（公斤）÷ 身高（公尺）²。分類採臺灣成人體位參
 
 執行測試：`python -m unittest discover -s tests`
 
+每次成功計算 BMI 後，結果會儲存至 SQLite 資料庫。預設檔案位置為 `instance/bmi.sqlite3`，資料表為 `bmi_records`，包含姓名、身高、體重、BMI 與儲存時間。
+
+登入功能使用環境變數設定帳號與密碼：`LOGIN_USERNAME`（預設 `admin`）、
+`LOGIN_PASSWORD`（預設為開發用密碼，正式環境請務必設定），以及 Flask session
+使用的 `SECRET_KEY`。登入頁面位於 `/login`，成功登入後可從首頁登出。
+
 ## 部署到 Azure Web App
 
-`.github/workflows/deploy-azure.yml` 在 `main` 分支的應用程式、測試或 workflow 異動時執行，也可以從 GitHub Actions 手動觸發。流程會在 Windows runner 上執行測試、下載官方 Python 3.14.8 可嵌入版本，將 Python 與相依套件一起部署到 `NTUSTweb00`（資源群組 `NTUSTlab2026`）。站點透過 `web.config` 的 IIS HttpPlatformHandler 啟動 `serve.py`，以 Waitress 提供 Flask 服務。
+`.github/workflows/deploy-azure.yml` 在 `main` 分支的應用程式、測試或 workflow 異動時執行，也可以從 GitHub Actions 手動觸發。流程會在 Windows runner 上執行測試、下載官方 Python 3.14.8 可嵌入版本，將 Python 與相依套件部署到 `NTUSTweb00`（資源群組 `NTUSTlab2026`）的 staging slot，確認部署成功後再交換至 production slot。站點透過 `web.config` 的 IIS HttpPlatformHandler 啟動 `serve.py`，以 Waitress 提供 Flask 服務。
+
+`.github/workflows/deploy-azure-test2.yml` 在 `dev` 分支的應用程式、測試或 workflow 異動時執行，也可以手動觸發。它會先執行完整測試，再將相同的部署包發布到 Azure Web App 的 `test` slot。部署後，workflow 會取得 test slot 的實際主機名稱並執行 smoke test，確認首頁回傳 HTTP 200 且包含 BMI 計算頁面的主要文字；若服務尚未就緒，會重試一段時間，仍失敗才讓 workflow 失敗。這個流程不會交換 production slot。
 
 此方法使用**隨部署包提供的 Python**，不依賴 Windows App Service 內建 Python 執行環境；HttpPlatformHandler 必須在目標站點可用。`NTUSTweb00` 目前是 Windows Web App，部署時會確認作業系統。
 
@@ -33,4 +41,4 @@ BMI = 體重（公斤）÷ 身高（公尺）²。分類採臺灣成人體位參
 
 - Repository secret `AZURE_CREDENTIALS`：Azure 服務主體的 `clientId`、`clientSecret`、`subscriptionId`、`tenantId` 組成的 JSON。此 Secret 已設定，不要把內容寫進程式碼。
 
-請確認該服務主體對 `NTUSTweb00` 具有部署權限（例如該站點的 **Website Contributor**）。推送符合上述條件的 `main` 分支異動，或從 GitHub Actions 手動執行工作流程即可部署。
+請確認該服務主體對 `NTUSTweb00` 具有部署權限（例如該站點的 **Website Contributor**）。推送符合上述條件的 `dev` 分支異動會部署至 `test` slot 並執行 smoke test；推送 `main` 分支異動會部署至 staging slot，通過部署流程後交換至 production。兩個 workflow 也都可以從 GitHub Actions 手動執行。

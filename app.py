@@ -1,8 +1,57 @@
 import math
+import os
+import sqlite3
+from datetime import datetime, timezone
 
-from flask import Flask, render_template, request
+from flask import Flask, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
+app.config["DATABASE"] = os.path.join(app.instance_path, "bmi.sqlite3")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "development-only-change-me")
+app.config["LOGIN_USERNAME"] = os.environ.get("LOGIN_USERNAME", "admin")
+app.config["LOGIN_PASSWORD_HASH"] = generate_password_hash(
+    os.environ.get("LOGIN_PASSWORD", "change-me")
+)
+
+
+def is_authenticated():
+    return "username" in session
+
+
+def save_bmi_record(user_name, height, weight, bmi):
+    database_path = app.config["DATABASE"]
+    os.makedirs(os.path.dirname(database_path), exist_ok=True)
+    connection = sqlite3.connect(database_path)
+    try:
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS bmi_records (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_name TEXT NOT NULL,
+                height REAL NOT NULL,
+                weight REAL NOT NULL,
+                bmi REAL NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO bmi_records (user_name, height, weight, bmi, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                user_name,
+                height,
+                weight,
+                bmi,
+                datetime.now(timezone.utc).isoformat(),
+            ),
+        )
+        connection.commit()
+    finally:
+        connection.close()
 
 
 def bmi_guidance(bmi):
@@ -37,6 +86,31 @@ def parse_positive_number(value):
     except (TypeError, ValueError):
         return None
     return number if math.isfinite(number) and number > 0 else None
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    username = ""
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        if username == app.config["LOGIN_USERNAME"] and check_password_hash(
+            app.config["LOGIN_PASSWORD_HASH"], password
+        ):
+            session.clear()
+            session["username"] = username
+            return redirect(url_for("index"))
+        error = "帳號或密碼錯誤，請重新輸入。"
+
+    return render_template("login.html", error=error, username=username)
+
+
+@app.post("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -76,9 +150,12 @@ def index():
                         "gauge_angle": -90 + gauge_percent * 1.8,
                         **bmi_guidance(displayed_bmi),
                     }
+                    save_bmi_record(user_name, height, weight, displayed_bmi)
 
     return render_template(
         "index.html",
+        logged_in=is_authenticated(),
+        logged_in_username=session.get("username"),
         user_name=user_name,
         height_input=height_input,
         weight_input=weight_input,

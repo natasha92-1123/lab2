@@ -15,6 +15,16 @@
           好好生活 <span class="brand-en">WELL LIVING</span>
         </a>
         <span class="header-note">把健康，從了解自己開始。</span>
+        {% if logged_in %}
+          <div class="account-status">
+            <span>嗨，{{ logged_in_username }}</span>
+            <form method="post" action="{{ url_for('logout') }}">
+              <button type="submit">登出</button>
+            </form>
+          </div>
+        {% else %}
+          <a class="login-link" href="{{ url_for('login') }}">登入</a>
+        {% endif %}
       </header>
 
       <main>

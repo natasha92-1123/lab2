@@ -80,3 +80,33 @@ jobs:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           slot-name: test
           package: dist
+
+      - name: Run test slot smoke test
+        shell: pwsh
+        run: |
+          $hostName = az webapp show `
+            --resource-group $env:AZURE_RESOURCE_GROUP `
+            --name $env:AZURE_WEBAPP_NAME `
+            --slot test `
+            --query defaultHostName `
+            --output tsv
+          if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($hostName)) {
+            throw 'Test slot hostname lookup failed'
+          }
+
+          $uri = "https://$($hostName.Trim())/"
+          $lastError = $null
+          for ($attempt = 1; $attempt -le 12; $attempt++) {
+            try {
+              $response = Invoke-WebRequest -Uri $uri -UseBasicParsing -TimeoutSec 30
+              if ($response.StatusCode -eq 200 -and $response.Content -match '計算你的 BMI') {
+                Write-Host "Smoke test passed: $uri"
+                exit 0
+              }
+              $lastError = "Unexpected response status or page content: $($response.StatusCode)"
+            } catch {
+              $lastError = $_.Exception.Message
+            }
+            Start-Sleep -Seconds 10
+          }
+          throw "Smoke test failed for $uri. $lastError"
